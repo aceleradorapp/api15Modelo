@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="icon" href="/images/favicon/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h2>Login</h2>
+            <form id="loginForm" action="/api/auth/login" method="POST">
+                <div class="input-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" name="password" placeholder="Digite sua senha" required>
+                </div>
+                <div class="submit-group">
+                    <button type="submit" class="btn-submit">Entrar</button>
+                </div>
+                <div class="footer-links">
+                    <a href="/register">Criar conta</a>
+                    <a href="#">Esqueceu a senha?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+    <script src="/js/login.js"></script>
+</html>
