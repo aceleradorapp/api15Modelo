@@ -12,7 +12,7 @@ const options = {
         },
         servers: [
             {
-                url: "http://localhost:3000", // URL base da sua API
+                url: "http://localhost:3535", // URL base da sua API
             },
         ],
         components: {
@@ -32,8 +32,12 @@ const options = {
     },
     apis: [
         path.join(__dirname, "../../docs/*.js"), // Referência aos arquivos de documentação
+        path.join(__dirname, "../../docs/postDocs.js"), // Adiciona o arquivo postDocs.js
+        path.join(__dirname, "../../docs/likeDocs.js"), // Adiciona o arquivo likeDocs.js
+        path.join(__dirname, "../../docs/profileDocs.js"), // Adiciona o arquivo likeDocs.js
     ],
 };
+
 
 const specs = swaggerJsdoc(options);
 
