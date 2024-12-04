@@ -20,10 +20,10 @@
  *             properties:
  *               email:
  *                 type: string
- *                 example: user@example.com
+ *                 example: michael.elointer@gmail.com
  *               password:
  *                 type: string
- *                 example: senha123
+ *                 example: 12345678
  *     responses:
  *       200:
  *         description: Login bem-sucedido, retorna o token JWT e informações do usuário

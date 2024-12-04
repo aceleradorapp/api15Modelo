@@ -39,14 +39,14 @@ const Profile = sequelize.define('Profile', {
 });
 
 // Definindo o relacionamento
-Profile.belongsTo(User, {
-    foreignKey: 'userId',
-    as: 'user',  // Relacionamento com o modelo User
-});
+// Profile.belongsTo(User, {
+//     foreignKey: 'userId',
+//     as: 'user',  // Relacionamento com o modelo User
+// });
 
-User.hasOne(Profile, {
-    foreignKey: 'userId',
-    as: 'profile',  // Relacionamento com o modelo Profile
-});
+// User.hasOne(Profile, {
+//     foreignKey: 'userId',
+//     as: 'profile',  // Relacionamento com o modelo Profile
+// });
 
 module.exports = Profile;

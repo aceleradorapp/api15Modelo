@@ -44,7 +44,8 @@ const Post = sequelize.define('Post', {
 });
 
 // Definindo o relacionamento
-Post.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
+//Post.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
+
 
 
 module.exports = Post;

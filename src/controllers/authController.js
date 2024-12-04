@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const User  = require('../models/User');  // Ajuste conforme seu modelo de usuário
+const User  = require('../models/User'); 
+const Profile = require('../models/Profile');
 const jwtConfig = require('../config/jwtConfig');
 
 // Função para gerar o token JWT
@@ -17,13 +18,15 @@ const generateToken = (user) => {
 };
 
 const login = async (req, res) => {
-    const { email, password } = req.body;
-
-    
-    
+    const { email, password } = req.body;    
 
     try {
-        const user = await User.findOne({ where: { email } });
+        //const user = await User.findOne({ where: { email } });
+        const user = await User.findOne({
+            where: { email },
+            include: { model: Profile, as: 'profile', attributes: ['photo'] }, // Inclui o perfil e a foto
+        });
+        
         
         if (!user) {
             return res.status(400).json({ message: 'Usuário não encontrado!' });
@@ -43,7 +46,8 @@ const login = async (req, res) => {
             message: 'Login bem-sucedido!',
             token,
             name: user.name,
-            type: user.roles
+            type: user.roles,
+            photo: user.profile?.photo || null,
         });
 
     } catch (err) {

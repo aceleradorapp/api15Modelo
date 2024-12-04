@@ -1,5 +1,6 @@
 const Post = require('../models/Post');  // Importando o modelo Post
 const Like = require('../models/Like');
+const Profile = require('../models/Profile');
 const User = require('../models/User');
 const fs = require('fs');
 const path = require('path');
@@ -7,24 +8,22 @@ const path = require('path');
 // Criar nova postagem
 const createPost = async (req, res) => {
     try {
-        const { title, text } = req.body; // Agora o authorId não é enviado diretamente
-        const userId = req.user.id; // Pega o ID do usuário autenticado
-        const image = req.file; // A imagem será acessada do multer
+        const { title, text } = req.body;
+        const userId = req.user.id;
+        const image = req.file; 
 
         if (!image) {
             return res.status(400).json({ message: 'Imagem é obrigatória.' });
         }
 
-        const imagePath = path.join(__dirname, '../../storage/posts', image.filename);
-
-        console.log('Caminho da imagem:', imagePath); // Verificando o caminho da imagem
+        const imagePath = path.join('storage/posts', image.filename);        
 
         // Criação do post
         const newPost = await Post.create({
             title,
             text,
-            authorId: userId, // O authorId é derivado do usuário autenticado
-            image: imagePath, // Caminho da imagem armazenada
+            authorId: userId, 
+            image: imagePath, 
         });
 
         return res.status(201).json(newPost);
@@ -33,8 +32,6 @@ const createPost = async (req, res) => {
         return res.status(500).json({ message: 'Erro ao criar postagem.', error: error.message });
     }
 };
-
-
 
 
 // Recuperar todas as postagens
@@ -52,18 +49,65 @@ const getPosts = async (req, res) => {
 const getPostById = async (req, res) => {
     try {
         const { id } = req.params;
-        const post = await Post.findByPk(id);
+        const userId = req.user.id;  // O ID do usuário logado
 
+        // Buscar a postagem com os relacionamentos necessários
+        const post = await Post.findByPk(id, {
+            include: [
+                {
+                    model: Like,
+                    as: 'likes',
+                    attributes: ['id', 'userId'], // Apenas atributos necessários
+                    required: false, // Permitir postagens sem likes
+                    include: [
+                        {
+                            model: User,
+                            as: 'user',
+                            attributes: ['id', 'name'], // Apenas o nome do usuário
+                            include: [
+                                {
+                                    model: Profile,
+                                    as: 'profile',
+                                    attributes: ['photo'], // Foto do perfil
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    model: User, // Inclui o modelo User para o autor da postagem
+                    as: 'author',  // Alias que você configurou no relacionamento de Post com User
+                    attributes: ['name'], // Nome do autor
+                    include: [
+                        {
+                            model: Profile,
+                            as: 'profile',  // Alias para o relacionamento de Profile
+                            attributes: ['photo'],  // Foto do perfil do autor
+                        }
+                    ]
+                },
+            ],
+        });
+
+        // Verifica se a postagem foi encontrada
         if (!post) {
             return res.status(404).json({ message: 'Postagem não encontrada.' });
         }
 
-        return res.status(200).json(post);
+        // Verifica se o usuário logado (userId) está na lista de likes da postagem
+        const liked = post.likes.some(like => like.user.id === userId); // Acessando o userId de like.user.id
+
+        // Retorna a postagem com as informações de curtidas
+        return res.status(200).json({
+            ...post.toJSON(),
+            liked: liked, // Adiciona o campo 'liked' correto
+        });
     } catch (error) {
         console.error('Erro ao recuperar postagem:', error);
         return res.status(500).json({ message: 'Erro ao recuperar postagem.' });
     }
 };
+
 
 // Método para ativar ou desativar o post
 const togglePostActive = async (req, res) => {
@@ -92,23 +136,27 @@ const togglePostActive = async (req, res) => {
 };
 
 const getPaginatedPostsWithLikes = async (req, res) => {
-    const { start = 0, end = 10 } = req.query; 
+    const { start = 0, end = 10 } = req.query;
 
-    console.log('********************************************************')
+    // Garantir que start e end sejam numéricos
+    const startInt = parseInt(start, 10);
+    const endInt = parseInt(end, 10);
+    const userId = req.user.id;
+
 
     try {
         // Total de postagens
         const totalPosts = await Post.count();
 
         // Cálculo de limites
-        const limit = end - start;
-        const offset = start;
+        const limit = endInt - startInt;
+        const offset = startInt;
 
-        // Busca postagens ordenadas e inclui os likes
+        // Busca postagens ordenadas e inclui os likes, os nomes dos usuários que deram os likes, foto do perfil, e as informações do autor da postagem
         const posts = await Post.findAll({
             order: [['createdAt', 'DESC']],
-            limit,
-            offset,
+            limit: limit,  // Limite para a consulta
+            offset: offset,  // Offset para a consulta
             where: { active: true }, // Garantir que só busque postagens ativas
             include: [
                 {
@@ -116,6 +164,32 @@ const getPaginatedPostsWithLikes = async (req, res) => {
                     as: 'likes',
                     attributes: ['id', 'userId'], // Apenas atributos necessários
                     required: false, // Permitir posts sem likes
+                    include: [
+                        {
+                            model: User,
+                            as: 'user',  // Nome do alias que você configurou para o relacionamento no Like
+                            attributes: ['id','name'], // Apenas o nome do usuário
+                            include: [
+                                {
+                                    model: Profile,
+                                    as: 'profile',  // Nome do alias que você configurou para o relacionamento com Profile
+                                    attributes: ['photo'],  // Inclui a foto do perfil
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    model: User, // Inclui o modelo User para o autor da postagem
+                    as: 'author',  // Alias que você deve ter configurado no relacionamento de Post com User
+                    attributes: ['name'], // Nome do autor
+                    include: [
+                        {
+                            model: Profile,
+                            as: 'profile',  // Alias para o relacionamento de Profile
+                            attributes: ['photo'],  // Foto do perfil do autor
+                        }
+                    ]
                 },
             ],
         });
@@ -125,11 +199,20 @@ const getPaginatedPostsWithLikes = async (req, res) => {
             return res.status(404).json({ message: 'Nenhuma postagem encontrada.' });
         }
 
+        const postsWithLiked = posts.map(post => {
+            // Verifica se o usuário logado (userId) está na lista de likes da postagem
+            const liked = post.likes.some(like => like.user.id === userId); // Acessando o userId de like.user.id
+            return {
+                ...post.toJSON(),
+                liked: liked, // Adiciona o campo 'liked' correto
+            };
+        });
+
         // Calcula postagens restantes
-        const remainingPosts = totalPosts - end;
+        const remainingPosts = totalPosts - endInt;
 
         res.status(200).json({
-            posts,
+            posts: postsWithLiked,
             totalPosts,
             remainingPosts: remainingPosts < 0 ? 0 : remainingPosts,
         });
@@ -138,6 +221,7 @@ const getPaginatedPostsWithLikes = async (req, res) => {
         res.status(500).json({ message: 'Erro ao buscar postagens paginadas.', error: error.message });
     }
 };
+
 
 module.exports = {
     createPost,

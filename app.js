@@ -2,11 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const { swaggerUi, specs, optionsSwaggerUi } = require("./src/config/swaggerConfig");
-const sequelize = require('./src/config/dbConfig');
-const bodyParser = require('body-parser');
+//const sequelize = require('./src/config/dbConfig');
+const { sequelize } = require('./src/models/index');
+//const bodyParser = require('body-parser');
 const cors = require('cors');
-const User = require('./src/models/User');
-const Post = require('./src/models/Post');
+//const User = require('./src/models/User');
+//const Post = require('./src/models/Post');
 const pagesRoutes = require('./src/routes/pages/pages');
 const apiRoutes = require('./src/routes/api/apiRoutes'); 
 const authRoutes = require('./src/routes/api/authRoutes');
@@ -36,6 +37,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'src/public')));
 // Configurar o motor de template (EJS neste caso)
 app.set('views', path.join(__dirname, 'src/views'));
+app.use('/storage', express.static(path.join(__dirname, 'storage')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api', apiRoutes);

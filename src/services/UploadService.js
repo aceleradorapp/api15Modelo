@@ -48,6 +48,12 @@ class UploadService {
     uploadSingle() {
         return this.upload.single('image');
     }
+
+    // Método para obter a URL da imagem armazenada
+    static getImageUrl(filename) {
+        // Retorna a URL relativa da imagem
+        return `storage/posts/${filename}`;
+    }
 }
 
 module.exports = new UploadService();

@@ -38,7 +38,7 @@ router.post('/profiles', authMiddleware, profileController.createProfile);
 router.get('/profiles', authMiddleware, profileController.getProfileByUserId);
 router.put('/profiles', authMiddleware, profileController.updateProfile);
 
-router.post('/profiles/upload-photo', authMiddleware, uploadService.uploadSingle(), profileController.uploadProfilePhoto);
+router.post('/profiles/upload-photo', authMiddleware, uploadProfileService.uploadSingle(), profileController.uploadProfilePhoto);
 
 
 module.exports = router;

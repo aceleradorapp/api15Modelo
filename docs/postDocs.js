@@ -9,12 +9,12 @@
  * @swagger
  * /api/posts:
  *   post:
- *     summary: Cria uma nova postagem
+ *     summary: Cria uma nova postagem com título, texto e imagem
  *     tags: [Postagens]
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
@@ -26,11 +26,11 @@
  *                 example: "Este é o conteúdo da postagem."
  *               image:
  *                 type: string
- *                 example: "http://example.com/image.jpg"
+ *                 format: binary
+ *                 description: "Imagem da postagem"
  *               active:
  *                 type: boolean
  *                 example: true
- *               
  *     responses:
  *       201:
  *         description: Postagem criada com sucesso
@@ -160,4 +160,87 @@
  *         description: Postagem não encontrada
  *       500:
  *         description: Erro ao atualizar o status da postagem
+ */
+
+/**
+ * @swagger
+ * /api/posts/paginated:
+ *   get:
+ *     summary: Obtém postagens paginadas com likes e informações dos usuários
+ *     tags: [Postagens]
+ *     parameters:
+ *       - in: query
+ *         name: start
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *         description: "Início da páginação (padrão 0)"
+ *       - in: query
+ *         name: end
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: "Fim da páginação (padrão 10)"
+ *     responses:
+ *       200:
+ *         description: Lista de postagens paginadas com likes e informações dos usuários
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 posts:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Post'
+ *                 totalPosts:
+ *                   type: integer
+ *                 remainingPosts:
+ *                   type: integer
+ *       404:
+ *         description: Nenhuma postagem encontrada
+ *       500:
+ *         description: Erro ao buscar postagens paginadas
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Post:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         title:
+ *           type: string
+ *         text:
+ *           type: string
+ *         image:
+ *           type: string
+ *         active:
+ *           type: boolean
+ *         likes:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Like'
+ *     Like:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         userId:
+ *           type: integer
+ *         user:
+ *           type: object
+ *           properties:
+ *             name:
+ *               type: string
+ *             profile:
+ *               type: object
+ *               properties:
+ *                 photo:
+ *                   type: string
  */

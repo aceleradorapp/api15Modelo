@@ -31,7 +31,7 @@ const Like = sequelize.define('Like', {
 });
 
 // Definindo os relacionamentos
-Like.belongsTo(User, { foreignKey: 'userId', as: 'user' });
-Like.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
+//Like.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+//Like.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
 
 module.exports = Like;
