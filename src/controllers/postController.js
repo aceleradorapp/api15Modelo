@@ -10,11 +10,14 @@ const createPost = async (req, res) => {
     try {
         const { title, text } = req.body;
         const userId = req.user.id;
+        const roles = req.user.roles;
         const image = req.file; 
 
         if (!image) {
             return res.status(400).json({ message: 'Imagem é obrigatória.' });
         }
+        
+        let active = (roles === 'admin' || roles === 'owner') ? true : false;
 
         const imagePath = path.join('storage/posts', image.filename);        
 
@@ -24,6 +27,7 @@ const createPost = async (req, res) => {
             text,
             authorId: userId, 
             image: imagePath, 
+            active: active
         });
 
         return res.status(201).json(newPost);
@@ -202,9 +206,12 @@ const getPaginatedPostsWithLikes = async (req, res) => {
         const postsWithLiked = posts.map(post => {
             // Verifica se o usuário logado (userId) está na lista de likes da postagem
             const liked = post.likes.some(like => like.user.id === userId); // Acessando o userId de like.user.id
+            const isAuthorPost = parseInt(post.authorId) === parseInt(userId);
+
             return {
                 ...post.toJSON(),
                 liked: liked, // Adiciona o campo 'liked' correto
+                authorPost:isAuthorPost
             };
         });
 
@@ -222,6 +229,103 @@ const getPaginatedPostsWithLikes = async (req, res) => {
     }
 };
 
+const getPaginatedUserPostsWithLikes = async (req, res) => {
+    const { start = 0, end = 10 } = req.query;
+
+    // Garantir que start e end sejam numéricos
+    const startInt = parseInt(start, 10);
+    const endInt = parseInt(end, 10);
+    const userId = req.user.id;
+
+    try {
+        // Total de postagens do usuário
+        const totalPosts = await Post.count({
+            where: {
+                authorId: userId, // Filtrar pelo autor
+                active: true,    // Apenas postagens ativas
+            },
+        });
+
+        // Cálculo de limites
+        const limit = endInt - startInt;
+        const offset = startInt;
+
+        // Busca postagens do usuário
+        const posts = await Post.findAll({
+            order: [['createdAt', 'DESC']],
+            limit: limit, // Limite para a consulta
+            offset: offset, // Offset para a consulta
+            where: {
+                authorId: userId, // Filtrar pelo autor
+                active: true,    // Apenas postagens ativas
+            },
+            include: [
+                {
+                    model: Like,
+                    as: 'likes',
+                    attributes: ['id', 'userId'], // Apenas atributos necessários
+                    required: false, // Permitir posts sem likes
+                    include: [
+                        {
+                            model: User,
+                            as: 'user', // Nome do alias que você configurou para o relacionamento no Like
+                            attributes: ['id', 'name'], // Apenas o nome do usuário
+                            include: [
+                                {
+                                    model: Profile,
+                                    as: 'profile', // Nome do alias que você configurou para o relacionamento com Profile
+                                    attributes: ['photo'], // Inclui a foto do perfil
+                                },
+                            ],
+                        },
+                    ],
+                },
+                {
+                    model: User, // Inclui o modelo User para o autor da postagem
+                    as: 'author', // Alias que você deve ter configurado no relacionamento de Post com User
+                    attributes: ['name'], // Nome do autor
+                    include: [
+                        {
+                            model: Profile,
+                            as: 'profile', // Alias para o relacionamento de Profile
+                            attributes: ['photo'], // Foto do perfil do autor
+                        },
+                    ],
+                },
+            ],
+        });
+
+        // Verifica se nenhuma postagem foi encontrada
+        if (!posts.length) {
+            return res.status(404).json({ message: 'Nenhuma postagem encontrada para este usuário.' });
+        }
+
+        const postsWithLiked = posts.map((post) => {
+            // Verifica se o usuário logado (userId) está na lista de likes da postagem
+            const liked = post.likes.some((like) => like.user.id === userId);
+            const isAuthorPost = parseInt(post.authorId) === parseInt(userId)
+            return {
+                ...post.toJSON(),
+                liked: liked, // Adiciona o campo 'liked'
+                authorPost:isAuthorPost
+            };
+        });
+
+        // Calcula postagens restantes
+        const remainingPosts = totalPosts - endInt;
+
+        res.status(200).json({
+            posts: postsWithLiked,
+            totalPosts,
+            remainingPosts: remainingPosts < 0 ? 0 : remainingPosts,
+        });
+    } catch (error) {
+        console.error('Erro ao buscar postagens do usuário:', error.message);
+        res.status(500).json({ message: 'Erro ao buscar postagens do usuário.', error: error.message });
+    }
+};
+
+
 
 module.exports = {
     createPost,
@@ -229,4 +333,5 @@ module.exports = {
     getPostById,
     togglePostActive,
     getPaginatedPostsWithLikes,
+    getPaginatedUserPostsWithLikes,
 };

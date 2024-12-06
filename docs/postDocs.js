@@ -222,6 +222,12 @@
  *           type: string
  *         active:
  *           type: boolean
+ *         createdAt: 
+ *           type: string
+ *         author:
+ *           type: string
+ *         liked:
+ *           type: boolean
  *         likes:
  *           type: array
  *           items:
@@ -243,4 +249,51 @@
  *               properties:
  *                 photo:
  *                   type: string
+ */
+
+/**
+ * @swagger
+ * /api/posts/user/paginated:
+ *   get:
+ *     summary: Obtém postagens paginadas de um usuário específico com likes e informações dos usuários
+ *     tags: [Postagens]
+ *     parameters:
+ *       - in: query
+ *         name: start
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *         description: "Início da paginação (padrão 0)"
+ *       - in: query
+ *         name: end
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: "Fim da paginação (padrão 10)"
+ *     security:
+ *       - bearerAuth: []  # Indica que é necessário o token Bearer
+ *     responses:
+ *       200:
+ *         description: Lista de postagens paginadas do usuário com likes e informações dos usuários
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 posts:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Post'
+ *                 totalPosts:
+ *                   type: integer
+ *                   description: Total de postagens do usuário
+ *                 remainingPosts:
+ *                   type: integer
+ *                   description: Quantidade de postagens restantes
+ *       404:
+ *         description: Nenhuma postagem encontrada para o usuário
+ *       500:
+ *         description: Erro ao buscar postagens do usuário paginadas
  */

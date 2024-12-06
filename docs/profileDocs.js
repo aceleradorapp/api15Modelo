@@ -9,7 +9,7 @@
  * @swagger
  * /api/profiles:
  *   post:
- *     summary: Cria um novo perfil para o usuário
+ *     summary: Cria um novo perfil para o usuário, também atualiza os dados nickname e birthDate se enviado no mesmo end point.
  *     tags: [Profiles]
  *     requestBody:
  *       required: true

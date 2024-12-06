@@ -12,7 +12,8 @@ const options = {
         },
         servers: [
             {
-                url: "http://localhost:3535", // URL base da sua API
+                //url: "http://localhost:3535", // URL base da sua API
+                url: `http://${process.env.API_HOST || 'localhost'}:${process.env.PORT || 3535}`, // Usando variáveis de ambiente
             },
         ],
         components: {

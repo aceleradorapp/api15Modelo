@@ -24,7 +24,7 @@ const login = async (req, res) => {
         //const user = await User.findOne({ where: { email } });
         const user = await User.findOne({
             where: { email },
-            include: { model: Profile, as: 'profile', attributes: ['photo'] }, // Inclui o perfil e a foto
+            include: { model: Profile, as: 'profile', attributes: ['photo', 'nickname', 'birthDate'] }, 
         });
         
         
@@ -48,6 +48,8 @@ const login = async (req, res) => {
             name: user.name,
             type: user.roles,
             photo: user.profile?.photo || null,
+            nickname: user.profile?.nickname || null,
+            birthDate: user.profile?.birthDate || null,
         });
 
     } catch (err) {

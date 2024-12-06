@@ -6,28 +6,35 @@ const path = require('path');
 // Criar perfil
 const createProfile = async (req, res) => {
     try {
-        const { nickname, birthDate } = req.body;
+        const { nickname, birthDate, photo } = req.body;
         const userId = req.user.id; // Obtém o ID do usuário autenticado
 
         // Verificar se o usuário já tem um perfil
         const existingProfile = await Profile.findOne({ where: { userId } });
-        if (existingProfile) {
-            return res.status(400).json({ message: 'Perfil já existe para este usuário.' });
+
+        if (!existingProfile) {
+            // Criar novo perfil, caso não exista
+            const newProfile = await Profile.create({
+                nickname,
+                birthDate,
+                photo, // Adiciona foto se for o caso
+                userId, // Associa o perfil ao usuário autenticado
+            });
+            return res.status(201).json(newProfile);
+        } else {
+            // Se o perfil já existe, apenas atualizar os dados permitidos
+            const updatedProfile = await existingProfile.update({
+                nickname: nickname || existingProfile.nickname,
+                birthDate: birthDate || existingProfile.birthDate,
+            });
+            return res.status(200).json(updatedProfile);
         }
-
-        // Criar novo perfil
-        const newProfile = await Profile.create({
-            nickname,
-            birthDate,
-            userId, // Associa o perfil ao usuário autenticado
-        });
-
-        return res.status(201).json(newProfile);
     } catch (error) {
-        console.error('Erro ao criar perfil:', error.message);
-        return res.status(500).json({ message: 'Erro ao criar perfil.', error: error.message });
+        console.error('Erro ao criar ou atualizar perfil:', error.message);
+        return res.status(500).json({ message: 'Erro ao criar ou atualizar perfil.', error: error.message });
     }
 };
+
 
 const getProfileByUserId = async (req, res) => {
     try {

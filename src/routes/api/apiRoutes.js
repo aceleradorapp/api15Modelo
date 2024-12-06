@@ -23,6 +23,7 @@ router.patch('/users/:id/toggle-active', authMiddleware, adminMiddleware, userCo
 
 //Rotas para postagens
 router.get('/posts/paginated', authMiddleware, postController.getPaginatedPostsWithLikes);
+router.get('/posts/user/paginated', authMiddleware, postController.getPaginatedUserPostsWithLikes);
 router.post('/posts', authMiddleware, uploadService.uploadSingle(), postController.createPost);
 router.get('/posts', authMiddleware, postController.getPosts);
 router.get('/posts/:id', authMiddleware, postController.getPostById);
