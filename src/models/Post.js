@@ -38,6 +38,12 @@ const Post = sequelize.define('Post', {
         allowNull: false,
         defaultValue: false, // Define o valor padrão como false
     },
+    approved:{
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
+
 }, {
     tableName: 'posts',
     timestamps: false,  // Não adicionaremos createdAt e updatedAt, pois já definimos manualmente

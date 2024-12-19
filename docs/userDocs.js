@@ -148,7 +148,7 @@
 
 /**
  * @swagger
- * /api/users/toggle/{id}:
+ * /api/users/{id}/toggle-active:
  *   patch:
  *     summary: Ativa ou desativa um usuário por ID
  *     tags: [Usuários]

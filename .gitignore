@@ -1,5 +1,6 @@
 # Dependências do Node
 node_modules
+storage
 
 # Arquivos de variáveis de ambiente
 .env

@@ -15,6 +15,7 @@ const router = express.Router();
 // Rotas para usuários
 router.post('/users', userController.createUser);
 router.get('/users', authMiddleware, adminMiddleware, userController.getUsers);
+router.get('/getUserStatus', authMiddleware, adminMiddleware, userController.getUserStatus);
 router.get('/users/:id', authMiddleware, adminMiddleware, userController.getUserById);
 router.get('/users/email/:email', authMiddleware, adminMiddleware, userController.getUserByEmail);
 router.put('/users/:id', authMiddleware, adminMiddleware, userController.updateUser);
@@ -23,11 +24,15 @@ router.patch('/users/:id/toggle-active', authMiddleware, adminMiddleware, userCo
 
 //Rotas para postagens
 router.get('/posts/paginated', authMiddleware, postController.getPaginatedPostsWithLikes);
+router.get('/posts/paginatedNotActive', authMiddleware, postController.getPaginatedPostsNotActive);
+router.get('/posts/paginatedNotAproved', authMiddleware, postController.getPaginatedPostsNotAproved);
 router.get('/posts/user/paginated', authMiddleware, postController.getPaginatedUserPostsWithLikes);
+router.get('/posts/paginatedByAuthor', authMiddleware, postController.getPaginatedPostsByAuthor);
 router.post('/posts', authMiddleware, uploadService.uploadSingle(), postController.createPost);
 router.get('/posts', authMiddleware, postController.getPosts);
 router.get('/posts/:id', authMiddleware, postController.getPostById);
 router.patch('/posts/:id/toggle-active', authMiddleware, postController.togglePostActive);
+router.patch('/posts/:id/toggle-approve', authMiddleware, postController.togglePostApprove);
 
 // Rotas para likes
 router.post('/likes', authMiddleware, likeController.addLike);

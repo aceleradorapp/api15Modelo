@@ -75,6 +75,12 @@
  *         description: Erro ao obter postagem
  */
 
+
+
+
+
+
+
 /**
  * @swagger
  * /api/posts/{id}:
@@ -161,6 +167,63 @@
  *       500:
  *         description: Erro ao atualizar o status da postagem
  */
+
+/**
+ * @swagger
+ * /api/posts/{id}/toggleApprove:
+ *   patch:
+ *     summary: Ativa ou desativa a aprovação de uma postagem
+ *     tags: [Postagens]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID da postagem a ser ativada ou desativada
+ *     responses:
+ *       200:
+ *         description: Postagem teve seu status de aprovação alterado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Mensagem indicando o status atualizado da postagem
+ *                 post:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: ID da postagem
+ *                     title:
+ *                       type: string
+ *                       description: Título da postagem
+ *                     text:
+ *                       type: string
+ *                       description: Conteúdo da postagem
+ *                     image:
+ *                       type: string
+ *                       description: URL da imagem da postagem (se disponível)
+ *                     active:
+ *                       type: boolean
+ *                       description: Status de ativação da postagem
+ *                     approved:
+ *                       type: boolean
+ *                       description: Status de aprovação da postagem
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       description: Data de criação ou atualização da postagem
+ *       404:
+ *         description: Postagem não encontrada
+ *       500:
+ *         description: Erro ao alterar o status de aprovação da postagem
+ */
+
+
 
 /**
  * @swagger
@@ -296,4 +359,210 @@
  *         description: Nenhuma postagem encontrada para o usuário
  *       500:
  *         description: Erro ao buscar postagens do usuário paginadas
+ */
+
+/**
+ * @swagger
+ * /api/posts/paginatedNotActive:
+ *   get:
+ *     summary: Obtém postagens não ativas de forma paginada
+ *     tags: [Postagens]
+ *     parameters:
+ *       - in: query
+ *         name: start
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *         description: "Início da paginação (padrão 0)"
+ *       - in: query
+ *         name: end
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: "Fim da paginação (padrão 10)"
+ *     responses:
+ *       200:
+ *         description: Lista de postagens não ativas com informações de autor e likes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 posts:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Post'
+ *                 totalPosts:
+ *                   type: integer
+ *                   description: Total de postagens não ativas
+ *                 remainingPosts:
+ *                   type: integer
+ *                   description: Quantidade de postagens não ativas restantes
+ *       404:
+ *         description: Nenhuma postagem não ativa encontrada
+ *       500:
+ *         description: Erro ao buscar postagens não ativas
+ */
+
+/**
+ * @swagger
+ * /api/posts/paginatedByAuthor:
+ *   get:
+ *     summary: Obtém postagens não aprovadas de forma paginada por autor
+ *     tags: [Postagens]
+ *     parameters:
+ *       - in: query
+ *         name: start
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *         description: "Início da paginação (padrão 0)"
+ *       - in: query
+ *         name: end
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: "Fim da paginação (padrão 10)"
+ *       - in: query
+ *         name: authorName
+ *         required: false
+ *         schema:
+ *           type: string
+ *           default: ""
+ *         description: "Nome ou parte do nome do autor para filtrar as postagens"
+ *     responses:
+ *       200:
+ *         description: Lista de postagens não aprovadas filtradas por autor, com informações detalhadas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 posts:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         description: ID da postagem
+ *                       title:
+ *                         type: string
+ *                         description: Título da postagem
+ *                       text:
+ *                         type: string
+ *                         description: Conteúdo da postagem
+ *                       image:
+ *                         type: string
+ *                         description: URL da imagem da postagem (se disponível)
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Data de criação da postagem
+ *                       approved:
+ *                         type: boolean
+ *                         description: Status de aprovação da postagem
+ *                       author:
+ *                         type: object
+ *                         properties:
+ *                           name:
+ *                             type: string
+ *                             description: Nome do autor
+ *                           profile:
+ *                             type: object
+ *                             properties:
+ *                               photo:
+ *                                 type: string
+ *                                 description: URL da foto do perfil do autor
+ *                 totalPosts:
+ *                   type: integer
+ *                   description: Total de postagens não aprovadas que correspondem ao filtro
+ *                 remainingPosts:
+ *                   type: integer
+ *                   description: Quantidade de postagens restantes na consulta
+ *       404:
+ *         description: Nenhuma postagem encontrada para o autor especificado
+ *       500:
+ *         description: Erro ao buscar postagens filtradas por autor
+ */
+
+/**
+ * @swagger
+ * /api/posts/paginatedNotApproved:
+ *   get:
+ *     summary: Obtém postagens não aprovadas de forma paginada
+ *     tags: [Postagens]
+ *     parameters:
+ *       - in: query
+ *         name: start
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *         description: "Início da paginação (padrão 0)"
+ *       - in: query
+ *         name: end
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: "Fim da paginação (padrão 10)"
+ *     responses:
+ *       200:
+ *         description: Lista de postagens não aprovadas com informações de autor e perfil
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 posts:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         description: ID da postagem
+ *                       title:
+ *                         type: string
+ *                         description: Título da postagem
+ *                       text:
+ *                         type: string
+ *                         description: Conteúdo da postagem
+ *                       image:
+ *                         type: string
+ *                         description: URL da imagem da postagem (se disponível)
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Data de criação da postagem
+ *                       approved:
+ *                         type: boolean
+ *                         description: Status de aprovação da postagem
+ *                       author:
+ *                         type: object
+ *                         properties:
+ *                           name:
+ *                             type: string
+ *                             description: Nome do autor da postagem
+ *                           profile:
+ *                             type: object
+ *                             properties:
+ *                               photo:
+ *                                 type: string
+ *                                 description: URL da foto do perfil do autor
+ *                 totalPosts:
+ *                   type: integer
+ *                   description: Total de postagens não aprovadas
+ *                 remainingPosts:
+ *                   type: integer
+ *                   description: Quantidade de postagens restantes na consulta
+ *       404:
+ *         description: Nenhuma postagem não aprovada encontrada
+ *       500:
+ *         description: Erro ao buscar postagens não aprovadas
  */

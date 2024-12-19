@@ -39,7 +39,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api', apiRoutes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
-
 // Configurar as rotas de páginas
 app.use('/', pagesRoutes);
 

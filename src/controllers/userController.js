@@ -1,5 +1,7 @@
 const bcrypt = require('bcryptjs');
+const { Op } = require('sequelize');
 const User = require('../models/User'); 
+const Profile = require('../models/Profile');
 
 // 1. Criar Usuário
 const createUser = async (req, res) => {
@@ -34,8 +36,43 @@ const createUser = async (req, res) => {
 const getUsers = async (req, res) => {
     try {
         const users = await User.findAll({
-            where: { active: true }
+            where: {                 
+                active: true 
+            },
+            include: [
+                {
+                    model: Profile,
+                    as: 'profile',
+                    attributes: ['photo'], // Foto do perfil
+                }
+            ],
         });
+        return res.status(200).json(users);
+    } catch (error) {
+        return res.status(500).json({ message: 'Erro ao obter usuários', error });
+    }
+};
+
+const getUserStatus = async (req, res) => {
+    try {
+        const { name } = req.query;
+
+        // Definir condição de filtro com base no parâmetro `name`
+        const whereCondition = name 
+            ? { name: { [Op.like]: `%${name}%` } } 
+            : {};
+
+        const users = await User.findAll({
+            where: whereCondition, // Filtro opcional
+            include: [
+                {
+                    model: Profile,
+                    as: 'profile',
+                    attributes: ['photo'], // Foto do perfil
+                }
+            ],
+        });
+
         return res.status(200).json(users);
     } catch (error) {
         return res.status(500).json({ message: 'Erro ao obter usuários', error });
@@ -47,11 +84,18 @@ const getUserById = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const user = await User.findOne({
+        const user = await User.findOne({            
             where: {
                 id,
                 active: true
-            }
+            },
+            include: [
+                {
+                    model: Profile,
+                    as: 'profile',
+                    attributes: ['photo'], // Foto do perfil
+                }
+            ],
         });
 
         if (!user) {
@@ -165,6 +209,7 @@ const getUserByEmail = async (req, res) => {
 module.exports = {
     createUser,
     getUsers,
+    getUserStatus,
     getUserById,
     updateUser,
     deleteUser,
